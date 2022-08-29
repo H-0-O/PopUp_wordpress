@@ -1,0 +1,16 @@
+.sh{
+    margin-top: 100px;
+}
+.sh_form {
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    gap: 15px;
+}
+.sh_form input{
+    max-width: 300px;
+}
+.sh_form input[name="pre_phone"]{
+    width: 60px;
+    direction: ltr;
+}
