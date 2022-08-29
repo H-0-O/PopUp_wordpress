@@ -10,6 +10,10 @@ add_action('admin_menu' , function(){
 	$admin_page = new Admin_Page();
 });
 
-add_action('wp_footer' , function(){
+add_action('init' , function(){
+    if(is_admin())
+    {
+        return;
+    }
     $client_page = new Client_Page();
 });

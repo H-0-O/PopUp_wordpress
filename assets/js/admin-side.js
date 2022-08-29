@@ -41,4 +41,13 @@ $(document).ready(function (){
    $("#radio_crisp").click(function (){
        $(".sh_phone_number").attr('hidden' , true)
    })
+   $("#repeat").click(function(){
+       let $repeat_timer = $(".sh_repeat_timer");
+       if($repeat_timer.attr('hidden'))
+       {
+           $repeat_timer.attr('hidden' , false);
+       }else{
+           $repeat_timer.attr('hidden' , true);
+       }
+   })
 })

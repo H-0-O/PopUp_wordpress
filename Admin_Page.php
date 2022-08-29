@@ -2,7 +2,7 @@
 class Admin_Page
 {
 	private $title = null  , $welcome_sentence = null , $question_sentence = null , $app = null , $image_url = null , $phone_number ;
-    private $repeat = null;
+    private $repeat = null , $begin_timer = null , $repeat_timer = null , $sh_button = null;
 
 	public function __construct()
 	{
@@ -37,7 +37,9 @@ class Admin_Page
 		$this->image_url = get_option('sh_popup_image_url');
 		$this->phone_number = get_option('sh_popup_phone_number');
         $this->repeat = get_option('sh_popup_repeat');
-
+        $this->begin_timer = get_option('sh_popup_begin_timer');
+        $this->repeat_timer = get_option('sh_popup_repeat_timer');
+        $this->sh_button = get_option('sh_popup_button_text');
 		$checked = [
             'crisp' => $this->app == "crisp" ? "checked" : "",
             'whatsapp' => $this->app == "whatsapp" ? "checked" : "",
@@ -45,7 +47,8 @@ class Admin_Page
         ];
 		$hiddens = [
             'phone' => $this->app == "crisp" ? "hidden" : ""  ,
-            'img' => (empty($this->image_url) or $this->image_url == false ) ? "hidden" : ""
+            'img' => (empty($this->image_url) or $this->image_url == false ) ? "hidden" : "" ,
+            'repeat_timer' => empty($this->repeat) ? "hidden" : ""
         ];
 		$html = <<<HTML
 			<div class="sh container">
@@ -56,6 +59,8 @@ class Admin_Page
 					<input type="text" name="welcome" id="welcome" value="{$this->welcome_sentence}">
 					<label for="question">جمله سوال:</label>
 					<input type="text" name="question" id="question" value="{$this->question_sentence}">
+					<label for="sh_button">متن دکمه</label>
+					<input type="text" name="sh_button" id="sh_button" value="{$this->sh_button}"/>
 					<div class="sh_app">
 						<label class="advance_setting">تنظیمات بیشتر</label>
 						<div class="sh_app_radios">
@@ -67,6 +72,16 @@ class Admin_Page
 						<div class="sh_repeat">
 						    <label for="repeat">تکرار شود ؟</label>
 						    <input type="checkbox" id="repeat" name="repeat"  {$checked['repeat']}>
+                        </div>
+                        <div class="sh_timer">
+                             <div class="sh_begin_timer">
+                                <label for="begin_timer">زمان بعد از ورد کابر</label>
+                                <input type="number" name="begin_timer" id="begin_timer" value="{$this->begin_timer}" >
+                            </div>
+                            <div class="sh_repeat_timer" {$hiddens['repeat_timer']}>
+                                <label for="repeat_timer">زمان ماندن کاربر</label>
+                                <input type="number" name="repeat_timer" id="repeat_timer" value="{$this->repeat_timer}" >
+                            </div>
                         </div>
 						<div class="sh_phone_number" {$hiddens['phone']}>
 							<label for="phone_number">شماره واتساپ</label>
@@ -93,13 +108,16 @@ HTML;
     {
 
         $options = [
-            'sh_popup_title' => $_POST['title']  ,
-            'sh_popup_welcome_sentence' => $_POST['welcome'],
-            'sh_popup_question_sentence' => $_POST['question'] ,
-            'sh_popup_app' => $_POST['app'],
-            'sh_popup_image_url' => $_POST['img-url'] ,
-            'sh_popup_phone_number' => $_POST['phone_number'] ,
-            'sh_popup_repeat' => $_POST['repeat']
+            'sh_popup_title' => esc_html($_POST['title'])  ,
+            'sh_popup_welcome_sentence' => esc_html($_POST['welcome']),
+            'sh_popup_question_sentence' => esc_html($_POST['question']) ,
+            'sh_popup_app' => esc_html($_POST['app']),
+            'sh_popup_image_url' => esc_url($_POST['img-url']) ,
+            'sh_popup_phone_number' => esc_html($_POST['phone_number']) ,
+            'sh_popup_repeat' => esc_html($_POST['repeat']),
+            'sh_popup_begin_timer' => esc_html($_POST['begin_timer']),
+            'sh_popup_repeat_timer' => esc_html($_POST['repeat_timer']) ,
+            'sh_popup_button_text' => esc_html($_POST['sh_button'])
         ];
 
         foreach ($options as $option => $val)
