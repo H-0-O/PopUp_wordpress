@@ -1,16 +1,29 @@
+.sh_container{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 0px 0px;
+    grid-template-areas:
+    "main_setting color_setting"
+    "main_setting color_setting"
+    "save_options save_options";
+
+    gap: 20px;
+}
 .sh{
     margin-top: 100px;
 }
-.sh_form {
+.sh_main_setting {
     display: flex;
     flex-direction: column;
     max-width: 800px;
     gap: 15px;
+    grid-area: main_setting;
 }
-.sh_form input{
+.sh_main_setting input{
     max-width: 300px;
 }
-.sh_form input[name="pre_phone"]{
+.sh_main_setting input[name="pre_phone"]{
     width: 60px;
     direction: ltr;
 }
@@ -18,6 +31,10 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+.sh_phone_number #pre_phone{
+    direction: ltr;
+    width: 45px;
 }
 .sh_img {
     display: flex;
@@ -30,4 +47,73 @@
 #uploader{
     width: 200px;
     height: 40px;
+}
+
+.sh_sub_setting{
+    grid-area: color_setting;
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 30px;
+}
+
+.sh_save_options{
+    grid-area: save_options;
+}
+.sh_sub_setting div{
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+.sh_sub_setting input[type="number"]{
+    width: 80px;
+}
+.sh_chat_accounts{
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+}
+.sh_chat_sentences {
+    flex-grow: 1;
+    gap: 10px;
+    min-height: 100px;
+    max-height: 120px;
+    width: 300px;
+    max-width: 380px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    border-radius: 25px;
+    background-color: #ffffff;
+    margin-right: 30px;
+    padding: 0 10px;
+    overflow: auto;
+}
+.sh_chat_sentence_box{
+    display: flex;
+    flex-direction: row;
+    padding-top: 20px !important;
+}
+.sh_chat_sentence_box input{
+    height: 30px;
+}
+.sh_chat_sentence{
+    height: 30px;
+    width: 100px;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #444444;
+    color: white;
+    cursor: pointer;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-align: center;
+}
+.img-uploaded{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
 }

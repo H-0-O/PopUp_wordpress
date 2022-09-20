@@ -1,4 +1,12 @@
-$(document).ready(function (){
+(function ($) {
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+    });
+        // Get the value of "some_key" in eg "https://example.com/?some_key=some_value"
+    let panel = params.panel;
+
+
+    //media uploader
     let mediaUploader = wp.media({
         title: 'Choose Image',
         button: {
@@ -6,48 +14,207 @@ $(document).ready(function (){
         },
         multiple: false
     });
+if(panel != 2) {
+    // page one
 
-    $("#uploader").click(function(e){
+    $("#uploader").click(function (e) {
         e.preventDefault();
-        if(mediaUploader)
-        {
+        if (mediaUploader) {
+            mediaUploader.open();
+            return;
+        }
+    });
+
+    mediaUploader.on('select', function () {
+        let $img = $("#uploaded");
+        var attachment = mediaUploader.state().get('selection').first().toJSON();
+        $img.attr('src', attachment.url);
+        $("#uploaded-url").val(attachment.url);
+        if ($img.attr('hidden')) {
+            $img.attr('hidden', false);
+        }
+    });
+    // phone number edit
+    $(".sh_form").submit(function (e) {
+        let phone_number = $("#phone_number").val();
+        if (phone_number[0] == 0) {
+            phone_number = phone_number.substring(1);
+        }
+        $("#phone_number").val(phone_number);
+    })
+    $("#radio_whatsapp").click(function () {
+        $('.sh_phone_number').attr('hidden', false);
+        $('.sh_phone_number #phone_number').attr('required', true);
+    });
+    $("#radio_crisp").click(function () {
+        $(".sh_phone_number").attr('hidden', true).attr('required', false);
+        $('.sh_phone_number #phone_number').attr('required', true);
+    })
+    $("#repeat").click(function () {
+        let $repeat_timer = $(".sh_repeat_timer");
+        if ($repeat_timer.attr('hidden')) {
+            $repeat_timer.attr('hidden', false);
+        } else {
+            $repeat_timer.attr('hidden', true);
+        }
+
+        let $extra_timer = $('.sh_extra-time');
+        if ($extra_timer.attr('hidden'))
+            $extra_timer.attr('hidden', false);
+        else
+            $extra_timer.attr('hidden', true);
+    })
+
+    //color picker
+    $('.my-color-field').wpColorPicker();
+}
+
+//chat setting
+if(panel == 2) {
+    // global vars
+    let current_img_filed;
+    defaults();
+    //cansel submit on enter
+
+    // $('#settings').on('keyup keypress', function(e) {
+    //     console.log(e);
+    //     var keyCode = e.keyCode || e.which;
+    //     if (keyCode === 13) {
+    //         e.preventDefault();
+    //         return false;
+    //     }
+    // });
+
+    $("#settings").submit(function (e) {
+        e.preventDefault();
+    });
+
+    $(".ui-sortable").sortable();
+    //add sentence
+    $("body").on("keypress", '.sh_chat_input_sentence', function (key) {
+        if (key.keyCode == "13") {
+            let text = $(this).val();
+            $(this).parent().find(".ui-sortable").append(generate_sentence(text))
+            $(this).val('');
+        }
+    });
+    $(".sh_chat_add_account").click(function () {
+        $(".sh_chat_accounts").append(generate_account());
+        $(".ui-sortable").sortable();
+        defaults();
+    });
+
+    //add img
+    $("body").on("click", '.uploader-img', function (e) {
+        current_img_filed = $(this).parent().find(".img-uploaded");
+        if (mediaUploader) {
             mediaUploader.open();
             return;
         }
 
     });
 
-    mediaUploader.on('select' , function(){
-        let $img = $("#uploaded");
+    mediaUploader.on('select', function () {
+        let $img = current_img_filed;
         var attachment = mediaUploader.state().get('selection').first().toJSON();
-        $img.attr('src' , attachment.url);
-        $("#uploaded-url").val( attachment.url);
-        if($img.attr('hidden'))
-        {
-            $img.attr('hidden' , false);
+        $img.attr('src', attachment.url);
+        $("#uploaded-url").val(attachment.url);
+        if ($img.attr('hidden')) {
+            $img.attr('hidden', false);
         }
+        defaults();
     });
-    $(".sh_form").submit(function(e){
-       let phone_number = $("#phone_number").val();
-       if(phone_number[0] == 0)
-       {
-           phone_number = phone_number.substring(1);
-       }
-        $("#phone_number").val(phone_number);
-    })
-   $("#radio_whatsapp").click(function(){
-      $('.sh_phone_number').attr('hidden' , false);
-   });
-   $("#radio_crisp").click(function (){
-       $(".sh_phone_number").attr('hidden' , true)
-   })
-   $("#repeat").click(function(){
-       let $repeat_timer = $(".sh_repeat_timer");
-       if($repeat_timer.attr('hidden'))
-       {
-           $repeat_timer.attr('hidden' , false);
-       }else{
-           $repeat_timer.attr('hidden' , true);
-       }
-   })
-})
+
+     $("#save-options").click(function(){
+         grab_tables_information();
+         let settings = {
+             active: $("input[name='sh_popup_chat_active']").prop('checked') == true ? true : false ,
+             open_time_chat : $(".sh_chat_open_time").val() == '' ? 0 : $(".sh_chat_open_time").val(),
+             account_info : grab_tables_information(),
+         }
+         settings = JSON.stringify(settings);
+
+         $.ajax({
+             url: ajaxurl ,
+             data:{
+                 action: 'save_chat_panel',
+                 id: 2
+             },
+             method: "POST"
+         });
+     })
+
+
+
+    function generate_sentence(text) {
+        return `<li class='ui-state-default sh_chat_sentence'>${text}</li>`;
+    }
+
+    function generate_account(account_number) {
+        return ` <th>اکانت پیش فرض:</th>
+                                <td>
+                                    <table id="">
+                                            <tr>
+                                                <th scope="row"><input type="text" name="sh_popup_chat_account_name" data-id="" value="" placeholder="نام اکانت" ></th>
+                                                <td><input type="number" name="sh_popup_account_phone_number" data-id="" placeholder="تلفن"/></td>
+                                            </tr>
+                                            <tr>
+                                                <th>عکس اکانت</th>
+                                                <td>
+                                                    <p class="btn btn-primary uploader-img">انتخاب عکس</p>
+                                                    <img class="img-uploaded" src="" alt="">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>فاصله زمانی بین ارسال جملات</th>
+                                                <td><input type="number" placeholder="ms" name="sh_chat_input_sentence_time" style="width: 80px;"></td>
+                                            </tr>
+                                            <tr>
+                                                <th><label for="sh_chat_input_sentence">جملات اماده</th>
+                                                <td class="sh_chat_sentence_box">
+                                                    <input type="text" class="sh_chat_input_sentence" />
+                                                    <ul class="sh_chat_sentences ui-sortable"></ul>
+                                                </td>
+                                            </tr>
+                                    </table >
+                                </td>`;
+    }
+
+    function defaults(){
+        if($(".img-uploaded").attr('src') == ''){
+            $(".img-uploaded").css('display' , 'none');
+        }else{
+            $(".img-uploaded").css('display' , 'inline-block');
+        }
+    }
+
+    function grab_tables_information(){
+        let tables = $(".sh_chat_accounts").find("table");
+        let final_result = {};
+        $.each(tables , function(key , val){
+            final_result[key] = {};
+            final_result[key].account_name = $(val).find("input[name='sh_popup_chat_account_name']").val();
+            final_result[key].account_phone = $(val).find("input[name='sh_popup_account_phone_number']").val();
+            final_result[key].img_url = $(val).find(".img-uploaded").attr('src');
+            final_result[key].sentence_time =  $(val).find("input[name='sh_chat_input_sentence_time']").val();
+            final_result[key].sentences = grab_tables_sentence(val);
+        })
+        return final_result;
+    }
+
+    function grab_tables_sentence(el){
+
+        if($(el).find(".sh_chat_sentences").children().length != 0){
+            let sentences = [];
+            $.each($(el).find(".sh_chat_sentences").children()  , function(key , val){
+              sentences.push($(val).text());
+            })
+            return sentences;
+        }else{
+            return null;
+        }
+    }
+
+}
+
+})(jQuery)
