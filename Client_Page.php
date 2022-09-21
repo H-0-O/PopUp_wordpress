@@ -1,15 +1,17 @@
 <?php
 class Client_Page
 {
-    private $name = null , $img = null , $question_sentence = null;
+    private $name = null , $img = null , $question_sentence = null , $chat_setting;
 
     public function __construct()
     {
+        $this->chat_setting = json_decode(base64_decode(get_option('sh_chat_panel_settings')) , 1);
         $this->name = get_option('sh_popup_title');
         $this->img = get_option('sh_popup_image_url');
         $this->question_sentence = get_option('sh_popup_question_sentence');
         add_action('wp_enqueue_scripts' , [$this , 'add_files']);
         add_action('wp_footer' , [$this , 'generate_html']);
+
     }
 
     public function add_files()
@@ -28,31 +30,77 @@ class Client_Page
             'phone_number' => get_option('sh_popup_phone_number'),
             'extra_timer' => get_option('sh_popup_extra_timer') ,
             'open_aging' => get_option('sh_popup_open_again_after_send'),
+            'chat_setting' => $this->chat_setting
         ]);
         wp_enqueue_script('client-side-js');
 
     }
     public function generate_html()
     {
+
         $this->pop_up();
-        if(get_option('sh_popup_app') == "whatsapp")
-            $this->chat_panel();
+		if($this->chat_setting['active']== 'checked')
+			$this->chat_panel();
     }
     private function chat_panel()
     {
-        $open_img_src = get_option('sh_popup_panel_img') ? get_option('sh_popup_panel_img') : plugin_dir_url(__FILE__).'/assets/svg/icons8-whatsapp-50.svg';
-        $time = date("H:i");
-        $html = <<<HTML
+        $chat_icon = null;
+        if($this->chat_setting['chat_icon'])
+            $chat_icon = $this->chat_setting['chat_icon'];
+        elseif($this->chat_setting['theme'] == 1)
+            $chat_icon = plugin_dir_url(__FILE__).'assets/svg/icons8-whatsapp-50.svg';
+        else{
+	        $chat_icon = plugin_dir_url(__FILE__).'assets/svg/icons8-whatsapp-48.png';
+        }
+		?>
+        <style>
+            :root{
+                <?php if($this->chat_setting['theme'] == 1): ?>
+                --caht-account-back-color:  rgba(0, 0, 0, 0.8);
+                --chat-account-list-back-color : rgba(204, 204, 204, 0.62);
+                --chat-title-back-color : rgba(0, 0, 0, 0.2);
+                --chat-body-back : rgba(0, 0, 0, 0.5);
+                --chat-footer-back : rgba(0, 0, 0, 0.2);
+                --chat--message-back : rgba(0, 0, 0, 0.3);
+                --chat-message-personal-back: linear-gradient(120deg, #248A52, #257287);
+                <?php else: ?>
+                 --caht-account-back-color: #d2d2d2;
+                --chat-account-list-back-color :  #2db742;
+                --chat-title-back-color : #2db742;
+                --chat-body-back : #e8e8e8;
+                --chat-footer-back : #2db742;
+                --chat--message-back : #148c25;
+                --chat-message-personal-back: #086716;
+                <?php endif; ?>
+
+            }
+        </style>
         <div id="" class="sh_chat_panel " style="right: 10vw; bottom: 55vh;">
             <div class="sh_chat_panel_container">
                 <div class="sh_panel">
-                    <div class="sh_chat">
+                    <div class="sh_chat_account_list">
+                        <div class="sh_chat_account_list_box">
+			                <?php if($this->chat_setting['account_info']):
+				                foreach($this->chat_setting['account_info'] as $id => $account): ?>
+                                    <div class="sh_chat_account" data-id="<?= $id ?>">
+                                        <img src="<?= $account['img_url'] ?>" alt="<?= $account['account_name'] ?>"/>
+                                        <p class="sh_chat_account_name"><?= $account['account_name'] ?></p>
+                                        <p class="sh_chat_account_phone_number"><?= $account['account_phone'] ?></p>
+                                    </div>
+				                <?php endforeach;
+			                endif; ?>
+                        </div>
+                    </div>
+                    <div class="sh_chat sh_hide">
                         <div class="sh_chat_title">
                             <div class="sh_chat_avatar">
-                                <img src="{$this->img}" alt="">
+                                <img src="" alt="">
                             </div>
                             <div class="sh_chat_name">
                                 <p>$this->name</p>
+                            </div>
+                            <div class="sh_chat_back_to_account_list">
+                                <span><img src="<?= plugin_dir_url(__FILE__).'assets/svg/icons8-back-50.png'?>" alt=""></span>
                             </div>
                         </div>
                         <div class="sh_chat_body">
@@ -60,11 +108,7 @@ class Client_Page
                                 <div class="sh_chat_message_parent">
                                     <div class="sh_chat_message_scroller">
                                         <div class="sh_chat_messages">
-                                            <div class="sh_chat_message">
-                                                <p>$this->question_sentence</p>
-                                                <img src="{$this->img}">
-                                                <div class="sh_chat_message_time">$time</div>
-                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -72,20 +116,21 @@ class Client_Page
                         </div>
                         <div class="sh_chat_footer">
                             <input type="text" class="sh_chat_message_box" placeholder="لطفا پیام خودتان را اینجا بنویسید">
-                            <input type="submit" class="sh_chat_submit" value="ارسال">
+<!--                            <input type="submit" class="sh_chat_submit" value="ارسال">-->
+                            <img class="sh_chat_submit" src="<?= plugin_dir_url(__FILE__).'assets/svg/icons8-send-25.png' ?>" alt="send">
                         </div>
                     </div>
                 </div>
                 <div class="sh_icon_box" style="width: 50px;height: 50px; background-color: white;">
                     <span class="sh_icon_open" style="max-width: 120px;max-height: 120px;">
-                            <img src="$open_img_src" alt="">
+                            <img src="<?= $chat_icon ?>" alt="chat_icon">
                     </span>
                 </div>
             </div>
-        </div>     
-HTML;
-        echo $html;
-    }
+        </div>
+
+
+<?php    }
     private function pop_up()
     {
         $welcome_sentence = get_option('sh_popup_welcome_sentence');

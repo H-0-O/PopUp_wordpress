@@ -88,24 +88,82 @@
     opacity: 0;
     transition: 0.5s;
     transform: translateY(10px);
+    width: 300px;
+    height: 400px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 5px 30px rgb(0 0 0 / 20%);
+    border-radius: 20px;
 }
-
-.sh_show_chat{
+.sh_show_panel{
     visibility: visible !important;
     opacity: 100% !important;
     transform: translateY(-10px);
 }
+.sh_show{
+    visibility: visible !important;
+    opacity: 100% !important;
+}
+
+/* Chat Accounts Setting */
+.sh_chat_back_to_account_list{
+    cursor: pointer;
+    transition: 0.2s ease-in;
+}
+.sh_chat_back_to_account_list:hover{
+    transform: scale(1.2);
+}
+.sh_chat_account_list{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: var(--caht-account-back-color);
+}
+
+.sh_chat_account_list_box{
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 20px;
+}
+.sh_chat_account{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 10px;
+    background-color: var(--chat-account-list-back-color);
+}
+
+.sh_chat_account img{
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+}
+
+.sh_chat_account p {
+    color: white;
+    font-size: 14px;
+    margin-bottom: 0;
+}
+
+
+
 .sh_chat{
     display: flex;
     flex-direction: column;
     margin: 0 auto;
-    width: 300px;
-    height: 400px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 5px 30px rgb(0 0 0 / 20%);
-
+    width: 100%;
+    height: 100%;
+    background-color: var(--chat-body-back);
+    position: absolute;
+    top: 0;
 }
 .sh_chat p{
     margin-bottom: 0 !important;
@@ -117,7 +175,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var( --chat-title-back-color);
     padding: 10px 20px;
     gap: 20px;
 }
@@ -132,10 +190,15 @@
     max-height: 50px;
 
 }
-.sh_chat_name{
+.sh_chat_name {
     width: 100%;
     color: #fff;
 }
+.sh_chat_name p {
+    color: white;
+}
+
+
 .sh_chat_body{
     flex: 1 1 auto;
     width: 100%;
@@ -164,12 +227,13 @@
 }
 
 .sh_chat_messages .sh_chat_message{
+
     clear: both;
     float: left;
     padding: 6px 10px 7px;
     border-radius: 10px 10px 10px 0;
-    background: rgba(0, 0, 0, 0.3);
-    margin: 15px 0 15px 35px;
+    background: var(--chat--message-back);
+    margin: 15px 0 15px 0px;
     font-size: 11px;
     line-height: 1.4;
     position: relative;
@@ -179,9 +243,12 @@
     content: "";
     position: absolute;
     bottom: -6px;
-    border-top: 6px solid rgba(0, 0, 0, 0.3);
+    border-top: 6px solid var(--chat--message-back);
     left: 0;
     border-right: 7px solid transparent;
+}
+.sh_chat_messages .sh_chat_message p {
+    color: white;
 }
 .sh_chat_messages .sh_chat_message img{
     position: absolute;
@@ -208,7 +275,7 @@
     float: right;
     color: #fff;
     text-align: right;
-    background: linear-gradient(120deg, #248A52, #257287);
+    background: var(--chat-message-personal-back);
     border-radius: 10px 10px 0 10px;
 }
 .sh_chat_messages .sh_chat_message_personal .sh_chat_message_time{
@@ -219,7 +286,7 @@
     right: 0;
     border-right: none;
     border-left: 5px solid transparent;
-    border-top: 4px solid #257287;
+    border-top: 4px solid var(--chat-message-personal-back);
     bottom: -4px;
 }
 
@@ -234,7 +301,7 @@
     flex: 0 1 40px;
     width: 100%;
     height: 40px;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var(--chat-footer-back);
     position: relative;
 }
 .sh_chat_footer input[type='text']{
@@ -244,27 +311,27 @@
     color: white;
     padding: 0 20px 0 0 !important;
     width: 110%;
+    height: 100%;
 }
+
 .sh_chat_message_box::placeholder{
     color: #e8e8e8;
 }
-.sh_chat_footer input[type='submit']{
+.sh_chat_submit{
     position: absolute;
-    top: 4px;
-    left: 20px;
-    background-color: #248A52;
+    top: 8px;
+    left: 30px;
     border: 0;
     outline: none !important;
-    padding: 8px 15px;
     line-height: 1;
     color: white;
     border-radius: 10px;
-
+    transform: scale(-1);
     cursor: pointer;
     transition: 0.2s ease-in-out;
 }
 .sh_chat_submit:hover{
-    background-color: #1D7745;
+
 }
 /* animations */
 

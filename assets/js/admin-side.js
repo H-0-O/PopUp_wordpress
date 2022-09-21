@@ -70,40 +70,72 @@ if(panel != 2) {
 }
 
 //chat setting
+
 if(panel == 2) {
     // global vars
-    let current_img_filed;
-    defaults();
-    //cansel submit on enter
+    let current_img_filed , max_id;
 
-    // $('#settings').on('keyup keypress', function(e) {
-    //     console.log(e);
-    //     var keyCode = e.keyCode || e.which;
-    //     if (keyCode === 13) {
-    //         e.preventDefault();
-    //         return false;
-    //     }
-    // });
+    //cansel submit on enter
+    $('#settings').on('keyup keypress', function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode === 13) {
+            e.preventDefault();
+            return false;
+        }
+    });
 
     $("#settings").submit(function (e) {
         e.preventDefault();
+        grab_tables_information();
+        let settings = {
+            active: $("input[name='sh_popup_chat_active']").prop('checked') == true ? "checked" : "" ,
+            theme: $('input[name="sh_popup_chat_theme"]:checked').val(),
+            open_time_chat : $(".sh_chat_open_time").val() == '' ? 0 : $(".sh_chat_open_time").val(),
+            chat_icon: $(".chat_icon").attr('src'),
+            account_info : grab_tables_information(),
+        }
+        $.ajax({
+            url: ajaxurl ,
+            data:{
+                action: 'save_chat_panel',
+                settings
+            },
+            method: "POST",
+            statusCode:{
+                200:()=>{alert("تنظیمات با موفقیت ذخیره شد.")},
+                500:()=>{alert("مقادیر وارد شده اشتباه است.")}
+            }
+        });
     });
 
     $(".ui-sortable").sortable();
+
     //add sentence
-    $("body").on("keypress", '.sh_chat_input_sentence', function (key) {
-        if (key.keyCode == "13") {
-            let text = $(this).val();
+    $("body").on("click", '.add_to_sentence', function () {
+            let text = $(this).parent().find('.sh_chat_input_sentence').val();
             $(this).parent().find(".ui-sortable").append(generate_sentence(text))
-            $(this).val('');
-        }
+            $(this).parent().find('.sh_chat_input_sentence').val('');
     });
+
+    //remove sentence
+    $(".sh_chat_sentence").dblclick(function(){
+       $(this).remove();
+    });
+
+    // add account
     $(".sh_chat_add_account").click(function () {
         $(".sh_chat_accounts").append(generate_account());
         $(".ui-sortable").sortable();
         defaults();
     });
-
+    //remove account
+    $("body").on( 'click' , '.remove_account' , function(){
+        let id =$(this).parent().parent().parent().parent().attr('data-id');
+        console.log(id)
+        $('.sh_chat_accounts').find(`th[data-id="${id}"]`).remove();
+        $('.sh_chat_accounts').find(`td[data-id="${id}"]`).remove();
+        defaults();
+    })
     //add img
     $("body").on("click", '.uploader-img', function (e) {
         current_img_filed = $(this).parent().find(".img-uploaded");
@@ -125,38 +157,22 @@ if(panel == 2) {
         defaults();
     });
 
-     $("#save-options").click(function(){
-         grab_tables_information();
-         let settings = {
-             active: $("input[name='sh_popup_chat_active']").prop('checked') == true ? true : false ,
-             open_time_chat : $(".sh_chat_open_time").val() == '' ? 0 : $(".sh_chat_open_time").val(),
-             account_info : grab_tables_information(),
-         }
-         settings = JSON.stringify(settings);
-
-         $.ajax({
-             url: ajaxurl ,
-             data:{
-                 action: 'save_chat_panel',
-                 id: 2
-             },
-             method: "POST"
-         });
-     })
-
-
-
     function generate_sentence(text) {
         return `<li class='ui-state-default sh_chat_sentence'>${text}</li>`;
     }
 
     function generate_account(account_number) {
-        return ` <th>اکانت پیش فرض:</th>
-                                <td>
-                                    <table id="">
+        max_id++;
+        let message = "اکانت جدید"
+        return ` <th data-id="${max_id}" >${message}</th>
+                                <td data-id="${max_id}">
+                                    <table class="sh_chat_child_table" data-id="${max_id}">
                                             <tr>
                                                 <th scope="row"><input type="text" name="sh_popup_chat_account_name" data-id="" value="" placeholder="نام اکانت" ></th>
-                                                <td><input type="number" name="sh_popup_account_phone_number" data-id="" placeholder="تلفن"/></td>
+                                                <td>
+                                                    <input type="number" name="sh_popup_account_phone_number" data-id="" placeholder="تلفن"/>
+                                                    <p class="btn btn-danger remove_account">حذ کردن اکانت</p>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <th>عکس اکانت</th>
@@ -173,6 +189,7 @@ if(panel == 2) {
                                                 <th><label for="sh_chat_input_sentence">جملات اماده</th>
                                                 <td class="sh_chat_sentence_box">
                                                     <input type="text" class="sh_chat_input_sentence" />
+                                                      <p class="add_to_sentence btn btn-primary">اضافه کردن</p>
                                                     <ul class="sh_chat_sentences ui-sortable"></ul>
                                                 </td>
                                             </tr>
@@ -186,6 +203,13 @@ if(panel == 2) {
         }else{
             $(".img-uploaded").css('display' , 'inline-block');
         }
+        let data_ids = $('.sh_chat_accounts > th').map(function(){
+            return $(this).attr('data-id');
+        }).get();
+        if(data_ids.length != 0 )
+            max_id = Math.max.apply(Math, data_ids);
+        else
+            max_id = 0;
     }
 
     function grab_tables_information(){
@@ -211,10 +235,10 @@ if(panel == 2) {
             })
             return sentences;
         }else{
-            return null;
+            return false;
         }
     }
-
+    defaults();
 }
 
 })(jQuery)

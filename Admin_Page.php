@@ -6,15 +6,11 @@ class Admin_Page
 
 	public function __construct()
 	{
-		add_action('wp_ajax_nopriv_save_chat_panel' , function () {
-			echo "gfiogjoifdjg";
-			die();
-		});
-		add_action('wp_ajax_save_chat_panel' , function () {
-            echo "gfiogjoifdjg";
-            die();
+		add_action('wp_ajax_nopriv_save_chat_panel' , [$this , 'save_chat_panel']);
+		add_action('wp_ajax_save_chat_panel' , [$this , 'save_chat_panel']);
+        add_action('admin_menu' , function(){
+	        add_menu_page('تنظیمات پاپ آپ' , 'تنظیمات پاپ آپ' , 'manage_options' , 'pop_up_setting' , [$this , 'render_page_setting']);
         });
-		add_menu_page('تنظیمات پاپ آپ' , 'تنظیمات پاپ آپ' , 'manage_options' , 'pop_up_setting' , [$this , 'render_page_setting']);
 		add_action('admin_enqueue_scripts' , [$this , 'add_files']);
         if(isset($_GET['save_option']))
         {
@@ -213,29 +209,81 @@ HTML;
     }
 
 	private function html_chat_setting(){
-		$active = get_option('sh_popup_chat_active') == "active" ? "checked" : "" ;
+		$settings = base64_decode(get_option('sh_chat_panel_settings'));
+        $settings = json_decode($settings , 1);
 		?>
-			<form action='//<?= "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}&&save_option" ?>' method="post" class="sh_container" id="settings">
+			<form action='//<?= "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}&&save_option" ?>' method="post" class="" id="settings">
 					<table class="form-table" role="presentation">
 						<tbody>	
 							<tr>
 								<th scope="row">فعال بودن چت : </th>
-								<td><input type="checkbox" name="sh_popup_chat_active" value="active" <?= $active ?> /></td>
+								<td><input type="checkbox" name="sh_popup_chat_active" value="active" <?= $settings['active'] ?> /></td>
 							</tr>
                             <tr>
+                                <th scope="row">انتخاب تم</th>
+                                <td><label for="sh_popup_chat_theme">تم 1</label><input type="radio" name="sh_popup_chat_theme" value="1" <?= $settings['theme']==1 ? "checked" : '' ?> ><label for="sh_popup_chat_theme">تم 2</label><input type="radio" name="sh_popup_chat_theme" value="2" <?= $settings['theme']==2 ? "checked" : '' ?> ></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">آیکون چت:</th>
+                                <td>
+                                    <p class="btn btn-primary uploader-img">انتخاب عکس</p>
+                                    <img class="img-uploaded chat_icon" src="<?= empty($account['img_url']) ? '' : $account['img_url'] ?>" alt="">
+                                </td>
+                            </tr>
+                            <tr>
                                 <th>باز شدن پنل چت :</th>
-                                <td><input type="number" class="sh_chat_open_time"  placeholder="ms" style=" width:80px;"></td>
+                                <td><input type="number" min="1000" class="sh_chat_open_time" value="<?= $settings['open_time_chat'] ?>"  placeholder="ms" style=" width:80px;"></td>
                             </tr>
                             <tr>
                                 <th scope="row"><strong>اکانت ها</strong></th>
                                 <td><p class="sh_chat_add_account btn btn-primary">اضافه کردن اکانت</p></td>
                             </tr>
-							<tr class="sh_chat_accounts"></tr>
+							<tr class="sh_chat_accounts">
+                                <?php foreach($settings['account_info'] as $key => $account): ?>
+                                    <th data-id="<?= $key ?>"><?= $account['account_name'] ?></th>
+                                    <td data-id="<?= $key ?>">
+                                        <table class="sh_chat_child_table" data-id="<?= $key ?>">
+                                            <tr>
+                                                <th scope="row"><input type="text" name="sh_popup_chat_account_name" data-id="" value="<?= $account['account_name'] ?>" placeholder="نام اکانت" ></th>
+                                                <td>
+                                                    <input type="number" name="sh_popup_account_phone_number" value="<?= $account['account_phone'] ?>" data-id="" placeholder="تلفن"/>
+                                                    <p class="btn btn-danger remove_account">حذ کردن اکانت</p>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>عکس اکانت</th>
+                                                <td>
+                                                    <p class="btn btn-primary uploader-img">انتخاب عکس</p>
+                                                    <img class="img-uploaded" src="<?= empty($account['img_url']) ? '' : $account['img_url'] ?>" alt="">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>فاصله زمانی بین ارسال جملات</th>
+                                                <td><input type="number" min="1000" placeholder="ms" value="<?= $account['sentence_time'] ?>" name="sh_chat_input_sentence_time" style="width: 80px;"></td>
+                                            </tr>
+                                            <tr>
+                                                <th><label for="sh_chat_input_sentence">جملات اماده</th>
+                                                <td class="sh_chat_sentence_box">
+                                                    <input type="text" class="sh_chat_input_sentence" />
+                                                    <p class="add_to_sentence btn btn-primary">اضافه کردن</p>
+                                                    <ul class="sh_chat_sentences ui-sortable">
+                                                        <?php if($account['sentences']):
+                                                            foreach ($account['sentences'] as $sentence): ?>
+	                                                            <li class='ui-state-default sh_chat_sentence'><?= $sentence ?></li>
+                                                            <?php endforeach; ?>
+                                                        <?php endif; ?>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        </table >
+                                    </td>
+                                <?php endforeach; ?>
+                            </tr>
 						</tbody>
 					</table>
-					<div class="sh_save_options">
-            <input type="submit" id="save-options" class="btn btn-primary" value="ذخیره تغییرات" >
-        </div>
+                <div class="sh_save_options">
+                    <input type="submit" id="save-options" class="btn btn-primary" value="ذخیره تغییرات" >
+                </div>
 			</form>
 
 <?php }
@@ -277,7 +325,13 @@ HTML;
     }
 
     public function save_chat_panel(){
-        echo "foigjofijg";
+        $settings = json_encode($_POST['settings']);
+        $settings = base64_encode($settings);
+        $resualt = update_option('sh_chat_panel_settings'  , $settings);
+        if($resualt)
+            http_response_code(200);
+        else
+            http_response_code(500);
         die();
     }
 }
