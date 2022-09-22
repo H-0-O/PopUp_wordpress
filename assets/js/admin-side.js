@@ -3,9 +3,8 @@
         get: (searchParams, prop) => searchParams.get(prop),
     });
         // Get the value of "some_key" in eg "https://example.com/?some_key=some_value"
+
     let panel = params.panel;
-
-
     //media uploader
     let mediaUploader = wp.media({
         title: 'Choose Image',
@@ -15,7 +14,7 @@
         multiple: false
     });
     $('.my-color-field').wpColorPicker();
-if(panel != 2) {
+if( panel == 1 || panel == null) {
     // page one
 
     $("#uploader").click(function (e) {
@@ -25,7 +24,6 @@ if(panel != 2) {
             return;
         }
     });
-
     mediaUploader.on('select', function () {
         let $img = $("#uploaded");
         var attachment = mediaUploader.state().get('selection').first().toJSON();

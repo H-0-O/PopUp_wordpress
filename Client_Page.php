@@ -23,6 +23,7 @@ class Client_Page
         wp_register_script('client-side-js' , plugin_dir_url(__FILE__).'/assets/js/client-side.js' , false , false , true);
         wp_localize_script('client-side-js' , 'info' , [
             'ajaxurl' => admin_url('admin-ajax.php'),
+            'popup_active' => get_option('sh_popup_active'),
             'begin_timer' =>  get_option('sh_popup_begin_timer'),
             'repeat_timer' => get_option('sh_popup_repeat_timer'),
             'app' => get_option('sh_popup_app'),
@@ -37,8 +38,9 @@ class Client_Page
     }
     public function generate_html()
     {
-
-        $this->pop_up();
+	    $popup_active = get_option('sh_popup_active');
+        if($popup_active == "on")
+            $this->pop_up();
 		if($this->chat_setting['active']== 'checked')
 			$this->chat_panel();
     }

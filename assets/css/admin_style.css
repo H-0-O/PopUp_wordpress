@@ -130,3 +130,12 @@
 .sh_chat_child_table th{
     padding: 20px;
 }
+.sh_popup_active{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+}
+.sh_popup_active input{
+    margin: 0;
+}

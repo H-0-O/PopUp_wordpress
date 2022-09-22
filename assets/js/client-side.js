@@ -1,6 +1,6 @@
 (function($){
     //variables
-    let begin_timer = info.begin_timer  , repeat_timer = info.repeat_timer , app = info.app , repeat = info.is_repeated , phone_number = info.phone_number , extra_timer = info.extra_timer ,
+    let popup_active = info.popup_active ,begin_timer = info.begin_timer  , repeat_timer = info.repeat_timer , app = info.app , repeat = info.is_repeated , phone_number = info.phone_number , extra_timer = info.extra_timer ,
         open_aging = info.open_aging , chat_setting = info.chat_setting;
 // panel
     if(chat_setting['active'] == "checked") {
@@ -121,22 +121,20 @@
     }
 
     //pop up
-
-    if(begin_timer == 0 || begin_timer == "" || begin_timer == undefined )
+if(popup_active == null) {
+    if (begin_timer == 0 || begin_timer == "" || begin_timer == undefined)
         return;
-    if(document.referrer.search(document.location.host) == '-1') {
+    if (document.referrer.search(document.location.host) == '-1') {
         setTimeout(open_popup, begin_timer);
-    }else{
+    } else {
         setTimeout(open_popup, extra_timer);
     }
-    $("#sh_message").keyup(function(key){
-        if(key.keyCode == "13")
-        {
+    $("#sh_message").keyup(function (key) {
+        if (key.keyCode == "13") {
             $(".sh_send_text").click();
         }
     })
-    $(".sh_send_text").click(function(e)
-    {
+    $(".sh_send_text").click(function (e) {
         e.preventDefault();
         let text = $("#sh_message").val();
         document.cookie = "send_message=true";
@@ -146,22 +144,18 @@
 
     });
 
-    function get_cookie(cookie_name)
-    {
-        return document.cookie.split('; ').find((row) => row.startsWith(cookie_name)) ?.split('=')[1];
+    function get_cookie(cookie_name) {
+        return document.cookie.split('; ').find((row) => row.startsWith(cookie_name))?.split('=')[1];
 
     }
 
-    $("#sh_modal").click(function(){
-        if(repeat == "" || repeat == undefined)
-        {
-            if(document.referrer.search(document.location.host) == -1)
-            {
+    $("#sh_modal").click(function () {
+        if (repeat == "" || repeat == undefined) {
+            if (document.referrer.search(document.location.host) == -1) {
                 return;
             }
-        }else if(repeat == "on")
-        {
-            if( (get_cookie("send_message") != "true" || get_cookie("send_message") == undefined) || open_aging == "on") {
+        } else if (repeat == "on") {
+            if ((get_cookie("send_message") != "true" || get_cookie("send_message") == undefined) || open_aging == "on") {
                 setTimeout(function () {
                     if (!$("#sh_modal").hasClass("show")) {
                         setTimeout(open_popup, repeat_timer);
@@ -173,8 +167,7 @@
     });
 
 
-    function add_to_local_storage(text)
-    {
+    function add_to_local_storage(text) {
         let text_storage = localStorage.getItem("chat_panel_texts");
         if (text_storage) {
             text_storage += text + ";";
@@ -183,27 +176,27 @@
             localStorage.setItem('chat_panel_texts', text + ";");
         }
     }
-    function send_message(message)
-    {
-        switch (app){
+
+    function send_message(message) {
+        switch (app) {
             case 'crisp':
                 $crisp.push(["do", "message:send", ["text", message]]);
                 $crisp.push(["do", "chat:open"]);
                 break;
             case 'whatsapp':
-                if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
                     open(`https://api.whatsapp.com/send?phone=98${phone_number}&text=${message}`);
                 }
                 open(`https://web.whatsapp.com/send?phone=98${phone_number}&text=${message}`);
                 break;
         }
     }
-    function open_popup()
-    {
+
+    function open_popup() {
         $("#sh_modal_button").click();
     }
 
-
+}
 
 
 })(jQuery);
