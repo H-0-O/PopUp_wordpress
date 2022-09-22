@@ -10,7 +10,7 @@ class Admin_Page
 		add_action('wp_ajax_save_chat_panel' , [$this , 'save_chat_panel']);
 		add_action('admin_enqueue_scripts' , [$this , 'add_files']);
         add_action('admin_menu' , function(){
-	        add_menu_page('تنظیمات پاپ آپ' , 'تنظیمات پاپ آپ' , 'manage_options' , 'pop_up_setting' , [$this , 'render_page_setting']);
+	        add_menu_page('تنظیمات پاپ اپ و چت' , 'تنظیمات پاپ اپ و چت' , 'manage_options' , 'pop_up_setting' , [$this , 'render_page_setting']);
         });
         if(isset($_GET['save_option']))
         {
