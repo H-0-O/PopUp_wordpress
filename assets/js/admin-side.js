@@ -14,6 +14,7 @@
         },
         multiple: false
     });
+    $('.my-color-field').wpColorPicker();
 if(panel != 2) {
     // page one
 
@@ -66,7 +67,7 @@ if(panel != 2) {
     })
 
     //color picker
-    $('.my-color-field').wpColorPicker();
+
 }
 
 //chat setting
@@ -74,6 +75,9 @@ if(panel != 2) {
 if(panel == 2) {
     // global vars
     let current_img_filed , max_id;
+
+    // run functions
+    defaults();
 
     //cansel submit on enter
     $('#settings').on('keyup keypress', function(e) {
@@ -90,10 +94,14 @@ if(panel == 2) {
         let settings = {
             active: $("input[name='sh_popup_chat_active']").prop('checked') == true ? "checked" : "" ,
             theme: $('input[name="sh_popup_chat_theme"]:checked').val(),
+            gap_bot: $('input[name="sh_chat_gap_from_bottom"]').val(),
+            gap_right: $('input[name="sh_chat_gap_from_right"]').val(),
+            customize_color: grab_tables_for_color(),
             open_time_chat : $(".sh_chat_open_time").val() == '' ? 0 : $(".sh_chat_open_time").val(),
             chat_icon: $(".chat_icon").attr('src'),
             account_info : grab_tables_information(),
         }
+
         $.ajax({
             url: ajaxurl ,
             data:{
@@ -145,7 +153,14 @@ if(panel == 2) {
         }
 
     });
-
+    //active customize color
+    $("input[name='sh_popup_chat_theme']").click(function(){
+        if($('input[name="sh_popup_chat_theme"]:checked').val() == 3){
+            $(".sh_chat_customize").show();
+        }else{
+            $(".sh_chat_customize").hide();
+        }
+    })
     mediaUploader.on('select', function () {
         let $img = current_img_filed;
         var attachment = mediaUploader.state().get('selection').first().toJSON();
@@ -171,7 +186,7 @@ if(panel == 2) {
                                                 <th scope="row"><input type="text" name="sh_popup_chat_account_name" data-id="" value="" placeholder="نام اکانت" ></th>
                                                 <td>
                                                     <input type="number" name="sh_popup_account_phone_number" data-id="" placeholder="تلفن"/>
-                                                    <p class="btn btn-danger remove_account">حذ کردن اکانت</p>
+                                                    <p class="btn btn-danger remove_account">حذف کردن اکانت</p>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -211,7 +226,14 @@ if(panel == 2) {
         else
             max_id = 0;
     }
-
+    function grab_tables_for_color(){
+        let colors = $(".sh_chat_customize .my-color-field");
+        let final_result = {};
+        $.each(colors , function(key , val){
+            final_result[$(val).attr('name')] = $(val).val() == '' ? '#000' :  $(val).val();
+        });
+        return final_result;
+    }
     function grab_tables_information(){
         let tables = $(".sh_chat_accounts").find("table");
         let final_result = {};
@@ -238,7 +260,7 @@ if(panel == 2) {
             return false;
         }
     }
-    defaults();
+
 }
 
 })(jQuery)

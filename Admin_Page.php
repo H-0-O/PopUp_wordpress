@@ -42,6 +42,10 @@ class Admin_Page
 
 	private function html_main_setting()
 	{
+        if(isset($_GET['panel']))
+		    $page_one_url = str_replace("panel=1" , "panel=2" ,"//{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
+        else
+	        $page_one_url = "//{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}"."&panel=2";
 		$this->title = get_option('sh_popup_title');
 		$this->welcome_sentence = get_option('sh_popup_welcome_sentence');
 		$this->question_sentence = get_option('sh_popup_question_sentence');
@@ -69,6 +73,7 @@ class Admin_Page
             'phone_number' => $this->app == "whatsapp" ? "required" : ""
         ];
 		$html = <<<HTML
+             <a href="$page_one_url" class="btn btn-primary">رفتن به تنظیمات چت </a>
 			<div class="sh container">
 				<form action="//{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}&&save_option" method="post" class="sh_container" id="settings">
 				<div class="form sh_main_setting">
@@ -211,7 +216,9 @@ HTML;
 	private function html_chat_setting(){
 		$settings = base64_decode(get_option('sh_chat_panel_settings'));
         $settings = json_decode($settings , 1);
+		$page_one_url = str_replace("panel=2" , "panel=1" ,"//{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
 		?>
+            <a href="<?= $page_one_url ?>" class="btn btn-primary">رفتن به تنظیمات پاپ اپ</a>
 			<form action='//<?= "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}&&save_option" ?>' method="post" class="" id="settings">
 					<table class="form-table" role="presentation">
 						<tbody>	
@@ -220,8 +227,55 @@ HTML;
 								<td><input type="checkbox" name="sh_popup_chat_active" value="active" <?= $settings['active'] ?> /></td>
 							</tr>
                             <tr>
+                                <th scope="row">فاصله از پایین</th>
+                                <td><input type="number" name="sh_chat_gap_from_bottom" value="<?= $settings['gap_bot'] ?>"></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">فاصله ازراست</th>
+                                <td><input type="number" name="sh_chat_gap_from_right" value="<?= $settings['gap_right'] ?>"></td>
+                            </tr>
+                            <tr>
                                 <th scope="row">انتخاب تم</th>
-                                <td><label for="sh_popup_chat_theme">تم 1</label><input type="radio" name="sh_popup_chat_theme" value="1" <?= $settings['theme']==1 ? "checked" : '' ?> ><label for="sh_popup_chat_theme">تم 2</label><input type="radio" name="sh_popup_chat_theme" value="2" <?= $settings['theme']==2 ? "checked" : '' ?> ></td>
+                                <td>
+                                    <label for="sh_popup_chat_theme">تم 1</label>
+                                    <input type="radio" name="sh_popup_chat_theme" value="1" <?= $settings['theme']==1 ? "checked" : '' ?> >
+                                    <label for="sh_popup_chat_theme">تم 2</label>
+                                    <input type="radio" name="sh_popup_chat_theme" value="2" <?= $settings['theme']==2 ? "checked" : '' ?> >
+                                    <label for="sh_popup_chat_theme">دلخواه:</label>
+                                    <input type="radio" id="sh_chat_active_customize" name="sh_popup_chat_theme" value="3" <?= $settings['theme']==3 ? "checked" : '' ?>>
+                                    <table class="sh_chat_customize" style="display: <?= $settings['theme'] != "3" ? 'none' : 'block' ?> ">
+                                        <tbody>
+                                            <tr>
+                                                <th>رنگ بک گراند اکانت ها</th>
+                                                <td><input type="text"  class="my-color-field" name="account_list_back_color" value="<?= $settings['customize_color']['account_list_back_color']?>" ></td>
+                                            </tr>
+                                            <tr>
+                                                <th>رنگ بک گراند هر اکانت</th>
+                                                <td><input type="text" class="my-color-field" name="account_back_color" value="<?= $settings['customize_color']['account_back_color']?>" ></td>
+                                            </tr>
+                                            <tr>
+                                                <th>رنگ بک گراند سرتیتر اکانت</th>
+                                                <td><input type="text" class="my-color-field" name="title_back_color" value="<?= $settings['customize_color']['title_back_color']?>" ></td>
+                                            </tr>
+                                            <tr>
+                                                <th>رنگ بک گراند چت</th>
+                                                <td><input type="text" class="my-color-field" name="chat_back_color" value="<?= $settings['customize_color']['chat_back_color']?>" ></td>
+                                            </tr>
+                                            <tr>
+                                                <th>رنگ بک گراند قسمت ارسال پیام</th>
+                                                <td><input type="text" class="my-color-field" name="footer_back_color" value="<?= $settings['customize_color']['footer_back_color']?>" ></td>
+                                            </tr>
+                                            <tr>
+                                                <th>رنگ بک گراند پیام های سیستم</th>
+                                                <td><input type="text" class="my-color-field" name="message_back_color" value="<?= $settings['customize_color']['message_back_color']?>" ></td>
+                                            </tr>
+                                            <tr>
+                                                <th>رنگ بک گراند پیام های کاربر</th>
+                                                <td><input type="text" class="my-color-field" name="person_message_back_color" value="<?= $settings['customize_color']['person_message_back_color']?>" ></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
                             </tr>
                             <tr>
                                 <th scope="row">آیکون چت:</th>
@@ -247,7 +301,7 @@ HTML;
                                                 <th scope="row"><input type="text" name="sh_popup_chat_account_name" data-id="" value="<?= $account['account_name'] ?>" placeholder="نام اکانت" ></th>
                                                 <td>
                                                     <input type="number" name="sh_popup_account_phone_number" value="<?= $account['account_phone'] ?>" data-id="" placeholder="تلفن"/>
-                                                    <p class="btn btn-danger remove_account">حذ کردن اکانت</p>
+                                                    <p class="btn btn-danger remove_account">حذف کردن اکانت</p>
                                                 </td>
                                             </tr>
                                             <tr>

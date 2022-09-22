@@ -55,7 +55,7 @@ class Client_Page
 		?>
         <style>
             :root{
-                <?php if($this->chat_setting['theme'] == 1): ?>
+                <?php switch($this->chat_setting['theme']): case '1' : default: ?>
                 --caht-account-back-color:  rgba(0, 0, 0, 0.8);
                 --chat-account-list-back-color : rgba(204, 204, 204, 0.62);
                 --chat-title-back-color : rgba(0, 0, 0, 0.2);
@@ -63,7 +63,7 @@ class Client_Page
                 --chat-footer-back : rgba(0, 0, 0, 0.2);
                 --chat--message-back : rgba(0, 0, 0, 0.3);
                 --chat-message-personal-back: linear-gradient(120deg, #248A52, #257287);
-                <?php else: ?>
+                <?php break; case '2': ?>
                  --caht-account-back-color: #d2d2d2;
                 --chat-account-list-back-color :  #2db742;
                 --chat-title-back-color : #2db742;
@@ -71,11 +71,18 @@ class Client_Page
                 --chat-footer-back : #2db742;
                 --chat--message-back : #148c25;
                 --chat-message-personal-back: #086716;
-                <?php endif; ?>
-
+                <?php break; case '3': ?>
+                --caht-account-back-color: <?= $this->chat_setting['customize_color']['account_list_back_color'] ?>;
+                --chat-account-list-back-color :  <?= $this->chat_setting['customize_color']['account_back_color'] ?>;
+                --chat-title-back-color : <?= $this->chat_setting['customize_color']['title_back_color'] ?>;
+                --chat-body-back : <?= $this->chat_setting['customize_color']['chat_back_color'] ?>;
+                --chat-footer-back : <?= $this->chat_setting['customize_color']['footer_back_color'] ?>;
+                --chat--message-back : <?= $this->chat_setting['customize_color']['message_back_color'] ?>;
+                --chat-message-personal-back: <?= $this->chat_setting['customize_color']['person_message_back_color'] ?>;
+                <?php endswitch; ?>
             }
         </style>
-        <div id="" class="sh_chat_panel " style="right: 10vw; bottom: 55vh;">
+        <div id="" class="sh_chat_panel " style="right: <?= $this->chat_setting['gap_right'] ?>px; bottom: <?= $this->chat_setting['gap_bot'] ?>px;">
             <div class="sh_chat_panel_container">
                 <div class="sh_panel">
                     <div class="sh_chat_account_list">

@@ -13,7 +13,7 @@
 
         });
         if(chat_setting['open_time_chat'])
-            setTimeout(()=>{ $('.sh_icon_box').click();} , chat_setting['open_time_chat']);
+            setTimeout(()=>{ if (!$('.sh_panel').hasClass('sh_show_panel')) $('.sh_icon_box').click();} , chat_setting['open_time_chat']);
         //go to account and set options
         $(".sh_chat_account").click(function(){
             $($chat_messages).html('');
